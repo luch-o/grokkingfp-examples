@@ -67,17 +67,28 @@ def parseShow(raw: String): Option[TvShow] = {
     } yield TvShow(name, startYear, endYear)
 }
 
-def parseShows(rawShows: List[String]): List[TvShow] = {
-    rawShows
-        .map(parseShow)
-        .flatMap(_.toList)
+def addOrResign(
+    parsedShows: Option[List[TvShow]],
+    newParsedShow: Option[TvShow]
+): Option[List[TvShow]] = {
+    for {
+        shows      <- parsedShows
+        parsedShow <- newParsedShow
+    } yield shows.appended(parsedShow)
 }
 
-parseShows(rawShows)
+addOrResign(Some(List.empty), Some(TvShow("Chernobyl", 2019, 2019)))
+addOrResign(Some(List(TvShow("Chernobyl", 2019, 2019))), Some(TvShow("The Wire", 2002, 2008)))
+addOrResign(Some(List(TvShow("Chernobyl", 2019, 2019))), None)
+addOrResign(None, Some(TvShow("Chernobyl", 2019, 2019)))
+addOrResign(None, None)
 
-parseShows(List(
-    "Chernobyl (2019)",
-    "Breaking Bad (2008-2013)",
-    "Mad Men (-2015)",
-))
+def parseShows(rawShows: List[String]): Option[List[TvShow]] = {
+    val initial: Option[List[TvShow]] = Some(List.empty)
+    rawShows
+        .map(parseShow)
+        .foldLeft(initial)(addOrResign)
+}
 
+parseShows(List("Chernobyl (2019)", "Breaking Bad (2008-2013)"))
+parseShows(List("Chernobyl (2019)", "Breaking Bad"))

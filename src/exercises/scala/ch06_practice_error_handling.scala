@@ -67,17 +67,52 @@ def parseShow(raw: String): Option[TvShow] = {
     } yield TvShow(name, startYear, endYear)
 }
 
-def parseShows(rawShows: List[String]): List[TvShow] = {
-    rawShows
-        .map(parseShow)
-        .flatMap(_.toList)
+def parseShows(rawShows: List[String]): List[Option[TvShow]] = {
+    rawShows.map(parseShow)
 }
 
-parseShows(rawShows)
+val onlyStartYear = "A (1992-)"
+val singleYear = "B (2002)"
+val onlyEndYear = "C (-2012)"
+val onlyYear = "(2022)"
+val missingYear = "E (-)"
 
-parseShows(List(
-    "Chernobyl (2019)",
-    "Breaking Bad (2008-2013)",
-    "Mad Men (-2015)",
-))
+val cornerCases = List(
+    onlyStartYear,
+    singleYear,
+    onlyEndYear,
+    onlyYear,
+    missingYear
+)
 
+def extractYearSingleOrEnd(raw: String): Option[Int] = {
+    extractSingleYear(raw).orElse(extractYearEnd(raw))
+}
+
+cornerCases.map(extractYearSingleOrEnd)
+
+def extratYearStartOrEndOrSingle(raw: String): Option[Int] = {
+    extractYearStart(raw)
+        .orElse(extractYearEnd(raw))
+        .orElse(extractSingleYear(raw))
+}
+
+cornerCases.map(extratYearStartOrEndOrSingle)
+
+def extractSingleYearIfName(raw: String): Option[Int] = {
+    for {
+        name <- extractName(raw)
+        year <- extractSingleYear(raw)
+    } yield year
+}
+
+cornerCases.map(extractSingleYearIfName)
+
+def extractYearStartOrEndOrSingleIfName(raw: String): Option[Int] = {
+    for {
+        name <- extractName(raw)
+        year <- extratYearStartOrEndOrSingle(raw)
+    } yield year
+}
+
+cornerCases.map(extractYearStartOrEndOrSingleIfName)
