@@ -56,16 +56,13 @@ val myPlaylist = Playlist(
 )
 
 def gatherSongs(playlists: List[Playlist], artist: Artist, genre: MusicGenre): List[Song] = {
-    // songs performed by the artist from user based playlist
-    // plus all songs from artist based playlists
-    // plus all songs from genre-based playlist
     playlists.foldLeft(List.empty[Song])((songs, playlist) =>
         val matchingSongs = playlist.kind match {
-            case Curated(curator) => 
+            case Curated(curator) =>
                 playlist.songs.filter(_.artist == artist)
-            case ArtistBased(playlistArtist) => 
+            case ArtistBased(playlistArtist) =>
                 if (playlistArtist == artist) playlist.songs else List.empty
-            case GenreBased(genres) =>  
+            case GenreBased(genres) =>
                 if (genres.contains(genre)) playlist.songs else List.empty
         }
         songs.appendedAll(matchingSongs)
