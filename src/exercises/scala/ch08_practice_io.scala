@@ -1,8 +1,10 @@
-import cats.effects.IO
+import cats.effect.IO
+import cats.implicits.*
+import cats.effect.unsafe.implicits.global
+
 import ch08_SchedulingMeetings.calendarEntriesApiCall
 import ch08_SchedulingMeetings.createMeetingApiCall
 
-case class MeetingTime(start: Int, end: Int)
 
 def calendarEntries(name: String): IO[List[MeetingTime]] = {
     IO.delay(calendarEntriesApiCall(name))
