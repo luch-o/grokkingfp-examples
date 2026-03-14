@@ -21,10 +21,8 @@ def scheduledMeetings(person1: String, person2: String): IO[List[MeetingTime]] =
     } yield person1Meetings.appendedAll(person2Meetings)
 }
 
-def overlaps(candidate: MeetingTime, existingMeetings: List[MeetingTime]): Boolean = {
-    existingMeetings.exists(meeting =>
-        (meeting.startHour < candidate.endHour) && (meeting.endHour > candidate.startHour)
-    )
+def overlaps(slot: MeetingTime, meeting: MeetingTime): Boolean = {
+    (meeting.startHour < slot.endHour) && (meeting.endHour > slot.startHour)
 }
 
 def possibleMeetings(
@@ -35,7 +33,11 @@ def possibleMeetings(
 ): List[MeetingTime] = {
         List.range(startHour, endHour, lengthHours)
             .map(start => MeetingTime(start, start + lengthHours))
-            .filter(meeting => !overlaps(meeting, existingMeetings))
+            .filter(slot => 
+                existingMeetings.forall(meeting => 
+                    !overlaps(slot, meeting)
+                )
+            )
     }
 
 def schedule(
